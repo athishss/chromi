@@ -30,7 +30,10 @@ export default function Profile() {
         try {
             const updated = await api.updateProfile({ ...editForm, skills: editForm.skills.split(',').map(s => s.trim()).filter(Boolean) }, getAccessToken);
             setProfile(updated); setEditing(false);
-        } catch { /* ignore */ }
+        } catch (err: any) { 
+            console.error(err);
+            alert('Failed to save profile: ' + (err.message || 'Unknown error'));
+        }
         finally { setSaving(false); }
     }
 
