@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import AnimatedContent from '../components/animated-content';
 import SectionTitle from '../components/section-title';
 import type { IDispute } from '../../types';
-import { ShieldAlertIcon, AlertCircleIcon, CheckCircle2Icon, ClockIcon } from 'lucide-react';
+import { ShieldAlertIcon, CheckCircle2Icon, ClockIcon } from 'lucide-react';
 
 const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
     open: { color: 'bg-amber-900/30 text-amber-400', label: 'Open' },

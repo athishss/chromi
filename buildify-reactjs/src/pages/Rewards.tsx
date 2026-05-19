@@ -23,7 +23,7 @@ interface Milestone {
 }
 
 export default function Rewards() {
-    const { getAccessToken, refreshProfile } = useAuth();
+    const { getAccessToken } = useAuth();
     const [week, setWeek] = useState<DailyReward[]>([]);
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,7 +48,6 @@ export default function Rewards() {
         try {
             await api.claimReward(key, getAccessToken);
             await loadRewards();
-            await refreshProfile(); // To update balance in header
         } catch (err) {
             alert('Failed to claim reward. You may have already claimed it.');
         } finally {

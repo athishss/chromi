@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { XIcon, UploadIcon, InfoIcon, ShieldIcon, Image as ImageIcon, UsersIcon, CrownIcon } from 'lucide-react';
+import { XIcon, UploadIcon, ShieldIcon, UsersIcon, CrownIcon } from 'lucide-react';
 
 interface RequestExchangeModalProps {
     isOpen: boolean;

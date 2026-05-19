@@ -3,11 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import AnimatedContent from '../components/animated-content';
-import SectionTitle from '../components/section-title';
 import type { IUserProfile, IServiceListing, IEndorsement, IReview } from '../../types';
 import { CATEGORY_LABELS, type ServiceCategory } from '../../types';
 import {
-    UserIcon, ArrowLeftIcon, ClockIcon, StarIcon, CheckCircle2Icon,
+    ArrowLeftIcon, ClockIcon, StarIcon, CheckCircle2Icon,
     ShieldCheckIcon, TagIcon, TrendingUpIcon, TrendingDownIcon,
     AwardIcon, ThumbsUpIcon, MessageSquareIcon, ArrowRightIcon,
     BadgeCheckIcon, SparklesIcon, CalendarIcon

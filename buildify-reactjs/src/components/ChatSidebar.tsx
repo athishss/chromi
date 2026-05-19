@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquareIcon, XIcon, SendIcon, SparklesIcon, BotIcon, ArrowRightIcon, ClockIcon } from 'lucide-react';
+import { XIcon, SendIcon, SparklesIcon, BotIcon, ClockIcon } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CATEGORY_LABELS } from '../../types';
