@@ -16,8 +16,10 @@ export async function calculateTrustScore(userId) {
         
         let completionRateScore = 100;
         if (profile.total_exchanges > 0) {
-            // Need to calculate completed vs cancelled
-            const { count: completedCount } = await supabase.from('exchanges').select('*', { count: 'exact', head: true }).eq('provider_id', userId).eq('status', 'completed');
+            // Calculate completed vs cancelled for BOTH providing and requesting
+            const { count: completedCount } = await supabase.from('exchanges').select('*', { count: 'exact', head: true })
+                .or(`provider_id.eq.${userId},requester_id.eq.${userId}`)
+                .eq('status', 'completed');
             const total = profile.total_exchanges + (profile.total_cancellations || 0);
             if (total > 0) {
                 completionRateScore = (completedCount / total) * 100;
@@ -26,7 +28,11 @@ export async function calculateTrustScore(userId) {
             completionRateScore = 0;
         }
 
-        let ratingScore = (profile.rating / 5) * 100;
+        // If a user has no rating yet, don't penalize them. Default to 5.
+        let actualRating = profile.rating || 5.0;
+        if (actualRating === 0) actualRating = 5.0;
+        let ratingScore = (actualRating / 5) * 100;
+        
         let punctualityScore = profile.punctuality_score || 100;
         
         let endorsementScore = Math.min((profile.endorsements_count || 0) * 10, 100); // 10 pts per endorsement max 100

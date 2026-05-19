@@ -11,6 +11,7 @@ import {
     AwardIcon, ThumbsUpIcon, MessageSquareIcon, ArrowRightIcon,
     BadgeCheckIcon, SparklesIcon, CalendarIcon
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function PublicProfile() {
     const { userId } = useParams<{ userId: string }>();
@@ -23,6 +24,7 @@ export default function PublicProfile() {
     const [reviews, setReviews] = useState<IReview[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showTimetable, setShowTimetable] = useState(false);
 
     // Endorsement form
     const [endorseSkill, setEndorseSkill] = useState('');
@@ -218,13 +220,12 @@ export default function PublicProfile() {
                         {/* Timetable */}
                         {profile.timetable_url && (
                             <div className="mt-8 pt-6 border-t border-[var(--border)]">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <CalendarIcon size={18} className="text-[var(--accent)]" />
-                                    <h2 className="font-urbanist text-lg font-semibold">Availability Timetable</h2>
-                                </div>
-                                <div className="bg-[var(--bg-muted)] p-2 rounded-xl border border-[var(--border)] inline-block max-w-full">
-                                    <img src={profile.timetable_url} alt={`${profile.full_name}'s Timetable`} className="max-w-full h-auto rounded-lg" />
-                                </div>
+                                <button
+                                    onClick={() => setShowTimetable(true)}
+                                    className="w-full py-3 px-4 bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 text-[var(--accent)] border border-[var(--accent)]/20 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                                >
+                                    <CalendarIcon size={18} /> View Availability Timetable
+                                </button>
                             </div>
                         )}
                     </div>
@@ -353,6 +354,66 @@ export default function PublicProfile() {
                     )}
                 </div>
             </div>
+
+            {/* Timetable Modal */}
+            <AnimatePresence>
+                {showTimetable && profile?.timetable_url && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowTimetable(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        
+                        {/* Modal Content */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: 'spring', duration: 0.4 }}
+                            className="relative bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden shadow-2xl flex flex-col z-10"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
+                                <div className="flex items-center gap-2">
+                                    <CalendarIcon size={20} className="text-[var(--accent)]" />
+                                    <h3 className="font-urbanist text-xl font-bold text-[var(--text-primary)]">
+                                        {profile.full_name}'s Timetable
+                                    </h3>
+                                </div>
+                                <button
+                                    onClick={() => setShowTimetable(false)}
+                                    className="p-1.5 rounded-lg bg-[var(--bg-muted)] hover:bg-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            
+                            {/* Image Container */}
+                            <div className="p-6 overflow-y-auto flex items-center justify-center bg-[var(--bg-muted)]">
+                                <img
+                                    src={profile.timetable_url}
+                                    alt={`${profile.full_name}'s Timetable`}
+                                    className="max-w-full h-auto rounded-lg shadow-md max-h-[60vh] object-contain"
+                                />
+                            </div>
+                            
+                            {/* Footer */}
+                            <div className="p-4 border-t border-[var(--border)] flex justify-end">
+                                <button
+                                    onClick={() => setShowTimetable(false)}
+                                    className="px-5 py-2 bg-[var(--bg-muted)] hover:bg-[var(--border)] text-[var(--text-secondary)] rounded-full text-sm font-semibold transition-colors cursor-pointer"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </section>
     );
 }
