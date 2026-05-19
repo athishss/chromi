@@ -1,0 +1,129 @@
+@import "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap";
+@import "tailwindcss";
+
+/* ── Theme Variables ──────────────────────────────────────── */
+/* Dark mode (default) */
+:root {
+    --bg-page: #09090b;
+    --bg-card: #18181b;
+    --bg-muted: #27272a;
+    --bg-input: #27272a;
+    --bg-hero: #09090b;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent: #fafafa;
+    --accent-hover: #d4d4d8;
+    --accent-text: #09090b;
+    --border: #27272a;
+    --border-strong: #3f3f46;
+    --nav-bg: rgba(9, 9, 11, 0.85);
+    --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    --card-hover-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    --success-bg: #052e16;
+    --success-text: #4ade80;
+    --success-border: #166534;
+    --error-bg: #450a0a;
+    --error-text: #f87171;
+    --error-border: #991b1b;
+    --feature-icon-bg: #fafafa;
+    --feature-icon-text: #09090b;
+}
+
+/* Light mode */
+:root.light {
+    --bg-page: #ffffff;
+    --bg-card: #ffffff;
+    --bg-muted: #f4f4f5;
+    --bg-input: #f4f4f5;
+    --bg-hero: #f8f8f8;
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --text-muted: #a1a1aa;
+    --accent: #09090b;
+    --accent-hover: #27272a;
+    --accent-text: #fafafa;
+    --border: #e4e4e7;
+    --border-strong: #d4d4d8;
+    --nav-bg: rgba(255, 255, 255, 0.85);
+    --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --card-hover-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --success-bg: #f0fdf4;
+    --success-text: #16a34a;
+    --success-border: #bbf7d0;
+    --error-bg: #fef2f2;
+    --error-text: #dc2626;
+    --error-border: #fecaca;
+    --feature-icon-bg: #09090b;
+    --feature-icon-text: #fafafa;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.font-urbanist {
+    font-family: "Urbanist", sans-serif;
+}
+
+/* ── Custom Range Slider ──────────────────────────────────── */
+input[type="range"].custom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--bg-muted);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+input[type="range"].custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].custom-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+input[type="range"].custom-slider::-webkit-slider-thumb:active {
+    transform: scale(1.25);
+    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Firefox */
+input[type="range"].custom-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].custom-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+}
+
+input[type="range"].custom-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--bg-muted);
+}
