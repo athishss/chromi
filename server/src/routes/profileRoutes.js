@@ -88,6 +88,45 @@ router.post('/go-live', async (req, res) => {
         const { category, description = '', duration_hours = 2 } = req.body;
         if (!category) return res.status(400).json({ error: 'category is required' });
 
+        // Auto-create a listing of type 'offer' if it doesn't exist so other users can request it
+        const { data: existingListings } = await supabase
+            .from('service_listings')
+            .select('id')
+            .eq('user_id', req.userId)
+            .eq('category', category)
+            .eq('type', 'offer')
+            .eq('status', 'active');
+            
+        if (!existingListings || existingListings.length === 0) {
+            const friendlyNames = {
+                tutoring: 'Tutoring & Academic Help',
+                repair: 'Home & Gadget Repair',
+                design: 'Graphic Design & Creative',
+                cooking: 'Cooking & Meal Prep',
+                music: 'Music Lessons',
+                tech: 'Tech Support & Coding',
+                fitness: 'Fitness & Workout Coaching',
+                language: 'Language Exchange',
+                photography: 'Photography & Editing',
+                writing: 'Writing & Editing',
+                gardening: 'Gardening & Plant Care',
+                other: 'General Help & Services'
+            };
+            const title = friendlyNames[category] || `Live Barter: ${category}`;
+            const desc = description.trim() || `Available right now for help with ${category}. Request an exchange!`;
+            
+            const { error: insertErr } = await supabase.from('service_listings').insert({
+                user_id: req.userId,
+                title,
+                category,
+                description: desc,
+                type: 'offer',
+                status: 'active',
+                estimated_hours: 1.0
+            });
+            if (insertErr) console.error('[go-live] failed to auto-create service listing:', insertErr);
+        }
+
         const liveUntil = new Date(Date.now() + duration_hours * 60 * 60 * 1000).toISOString();
 
         const { data, error } = await supabase
