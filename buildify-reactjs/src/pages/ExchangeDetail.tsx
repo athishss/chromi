@@ -1,11 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import AnimatedContent from '../components/animated-content';
 import type { IExchange } from '../../types';
 import { EXCHANGE_STATUS_LABELS, CATEGORY_LABELS } from '../../types';
-import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, PlayIcon, StarIcon, SendIcon, ClockIcon, UserIcon, ShieldIcon } from 'lucide-react';
+import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, PlayIcon, StarIcon, SendIcon, ClockIcon, UserIcon, ShieldIcon, MessageCircleIcon } from 'lucide-react';
+
+interface ChatMessage {
+    id: string;
+    sender_id: string;
+    sender_name: string;
+    content: string;
+    created_at: string;
+}
 
 export default function ExchangeDetail() {
     const { exchangeId } = useParams<{ exchangeId: string }>();
@@ -18,13 +26,53 @@ export default function ExchangeDetail() {
     const { getAccessToken, user } = useAuth();
     const navigate = useNavigate();
 
+    // Chat state
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [chatInput, setChatInput] = useState('');
+    const [sendingMsg, setSendingMsg] = useState(false);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
     useEffect(() => { loadExchange(); }, [exchangeId]);
+
+    // Poll for messages when exchange is active
+    useEffect(() => {
+        if (exchange && ['accepted', 'in_progress', 'completed'].includes(exchange.status)) {
+            loadMessages();
+            pollRef.current = setInterval(loadMessages, 5000);
+            return () => { if (pollRef.current) clearInterval(pollRef.current); };
+        }
+    }, [exchange?.status, exchangeId]);
+
+    // Auto-scroll chat to bottom
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     async function loadExchange() {
         setLoading(true); setError('');
         try { setExchange(await api.getExchangeDetail(exchangeId!, getAccessToken)); }
         catch (err: unknown) { setError(err instanceof Error ? err.message : 'Failed to load'); }
         finally { setLoading(false); }
+    }
+
+    async function loadMessages() {
+        try {
+            const msgs = await api.getMessages(exchangeId!, getAccessToken);
+            setMessages(msgs || []);
+        } catch { /* ignore polling errors */ }
+    }
+
+    async function handleSendMessage(e: React.FormEvent) {
+        e.preventDefault();
+        if (!chatInput.trim() || sendingMsg) return;
+        setSendingMsg(true);
+        try {
+            const msg = await api.sendMessage(exchangeId!, chatInput.trim(), getAccessToken);
+            setMessages(prev => [...prev, msg]);
+            setChatInput('');
+        } catch { setError('Failed to send message'); }
+        finally { setSendingMsg(false); }
     }
 
     async function handleStatusUpdate(status: string) {
@@ -53,6 +101,7 @@ export default function ExchangeDetail() {
 
     const isProvider = user?.id === exchange.provider_id;
     const isRequester = user?.id === exchange.requester_id;
+    const showChat = ['accepted', 'in_progress', 'completed'].includes(exchange.status);
     const statusColor: Record<string, string> = {
         pending: 'bg-amber-900/30 text-amber-400', accepted: 'bg-blue-900/30 text-blue-400',
         in_progress: 'bg-[var(--success-bg)] text-[var(--success-text)]', completed: 'bg-emerald-900/30 text-emerald-400',
@@ -133,6 +182,70 @@ export default function ExchangeDetail() {
                     <button onClick={() => handleStatusUpdate('cancelled')} className="w-full py-3 bg-[var(--error-bg)] border border-[var(--error-border)] text-[var(--error-text)] rounded-full font-medium flex items-center justify-center gap-2 cursor-pointer hover:opacity-90 transition-opacity mb-8">
                         <XCircleIcon size={18} /> Cancel Request
                     </button>
+                )}
+
+                {/* ── Chat Panel ──────────────────────────────── */}
+                {showChat && (
+                    <AnimatedContent delay={0.2} className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] shadow-[var(--card-shadow)] mb-8 overflow-hidden">
+                        {/* Header */}
+                        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2 bg-[var(--bg-muted)]">
+                            <MessageCircleIcon size={18} className="text-[var(--accent)]" />
+                            <h3 className="font-urbanist text-lg font-semibold">Exchange Chat</h3>
+                            <span className="text-xs text-[var(--text-muted)] ml-auto">Coordinate your exchange here</span>
+                        </div>
+
+                        {/* Messages */}
+                        <div className="h-80 overflow-y-auto px-6 py-4 space-y-3 bg-[var(--bg-secondary)]/30">
+                            {messages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center">
+                                    <MessageCircleIcon size={32} className="text-[var(--text-muted)] mb-3 opacity-40" />
+                                    <p className="text-sm text-[var(--text-muted)]">No messages yet. Say hi to coordinate your exchange!</p>
+                                </div>
+                            ) : (
+                                messages.map(msg => {
+                                    const isMe = msg.sender_id === user?.id;
+                                    return (
+                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                                                isMe
+                                                    ? 'bg-[var(--accent)] text-[var(--accent-text)] rounded-br-md'
+                                                    : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] rounded-bl-md'
+                                            }`}>
+                                                {!isMe && (
+                                                    <p className="text-[10px] font-semibold text-[var(--text-muted)] mb-0.5 uppercase tracking-wider">{msg.sender_name}</p>
+                                                )}
+                                                <p className="text-sm leading-relaxed">{msg.content}</p>
+                                                <p className={`text-[10px] mt-1 ${isMe ? 'text-[var(--accent-text)]/50' : 'text-[var(--text-muted)]'}`}>
+                                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                            <div ref={chatEndRef} />
+                        </div>
+
+                        {/* Input */}
+                        {exchange.status !== 'completed' && (
+                            <form onSubmit={handleSendMessage} className="px-4 py-3 border-t border-[var(--border)] flex gap-2 items-center">
+                                <input
+                                    type="text"
+                                    value={chatInput}
+                                    onChange={e => setChatInput(e.target.value)}
+                                    placeholder="Type a message..."
+                                    className="flex-1 px-4 py-2.5 bg-[var(--bg-input)] border border-[var(--border)] rounded-full text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30 transition-all"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={sendingMsg || !chatInput.trim()}
+                                    className="p-2.5 bg-[var(--accent)] text-[var(--accent-text)] rounded-full hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer"
+                                >
+                                    <SendIcon size={16} />
+                                </button>
+                            </form>
+                        )}
+                    </AnimatedContent>
                 )}
 
                 {/* Review Form */}

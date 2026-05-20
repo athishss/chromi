@@ -17,6 +17,8 @@ import communityRoutes from './routes/communityRoutes.js';
 import chatbotRoutes from './routes/chatbotRoutes.js';
 import rewardRoutes from './routes/rewardRoutes.js';
 import stakingRoutes from './routes/stakingRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { ensureBadgesExist } from './services/gamificationService.js';
 
 const app = express();
@@ -49,6 +51,8 @@ app.use('/api/communities', communityRoutes);
 app.use('/api/chat', chatbotRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/staking', stakingRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

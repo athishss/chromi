@@ -6,7 +6,7 @@ import { links } from "../data/links";
 import { api } from "../services/api";
 import AnimatedContent from "./animated-content";
 import type { ILink } from "../../types";
-import { MenuIcon, XIcon, LogOutIcon, ClockIcon, PlusIcon, LayoutDashboardIcon, SunIcon, MoonIcon, UserIcon, SearchIcon, BellIcon, WalletIcon, UsersIcon, BarChart3Icon, CalendarIcon, GiftIcon } from "lucide-react";
+import { MenuIcon, XIcon, LogOutIcon, ClockIcon, PlusIcon, LayoutDashboardIcon, SunIcon, MoonIcon, UserIcon, SearchIcon, BellIcon, WalletIcon, UsersIcon, BarChart3Icon, CalendarIcon, GiftIcon, ShieldIcon } from "lucide-react";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -141,6 +141,11 @@ export default function Navbar() {
                             <Link to="/rewards" className="py-1 px-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 transition-colors">
                                 <GiftIcon size={16} /> Rewards
                             </Link>
+                            {user.email === 'athishs999@gmail.com' && (
+                                <Link to="/admin" className="py-1 px-3 text-[var(--text-secondary)] hover:text-[var(--accent)] flex items-center gap-1.5 transition-colors font-semibold">
+                                    <ShieldIcon size={16} /> Admin
+                                </Link>
+                            )}
                         </div>
 
                         <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -187,6 +192,9 @@ export default function Navbar() {
                     <Link to="/rewards" className="py-1 px-3 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}><GiftIcon size={18} /> Rewards</Link>
                     <Link to="/analytics" className="py-1 px-3 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}><BarChart3Icon size={18} /> Analytics</Link>
                     <Link to="/schedule" className="py-1 px-3 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}><CalendarIcon size={18} /> Schedule</Link>
+                    {user.email === 'athishs999@gmail.com' && (
+                        <Link to="/admin" className="py-1 px-3 flex items-center gap-2 text-[var(--accent)] font-semibold" onClick={() => setIsMenuOpen(false)}><ShieldIcon size={18} /> Admin Panel</Link>
+                    )}
                     <Link to="/notifications" className="py-1 px-3 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
                         <BellIcon size={18} /> Notifications {unread > 0 && <span className="bg-[var(--error-text)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unread}</span>}
                     </Link>

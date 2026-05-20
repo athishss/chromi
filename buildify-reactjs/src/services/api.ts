@@ -123,4 +123,16 @@ export const api = {
 
     // ── Chatbot ───────────────────────────────────
     sendChatMessage(message: string, history: any[], t: TokenGetter) { return request('/chat', { method: 'POST', body: JSON.stringify({ message, history }) }, t); },
+
+    // ── Exchange Messages ─────────────────────────
+    getMessages(exchangeId: string, t: TokenGetter) { return request(`/messages/${exchangeId}`, {}, t); },
+    sendMessage(exchangeId: string, content: string, t: TokenGetter) { return request(`/messages/${exchangeId}`, { method: 'POST', body: JSON.stringify({ content }) }, t); },
+
+    // ── Admin ─────────────────────────────────────
+    adminGetStats(t: TokenGetter) { return request('/admin/stats', {}, t); },
+    adminGetUsers(search: string, t: TokenGetter) { return request(`/admin/users?search=${encodeURIComponent(search)}`, {}, t); },
+    adminUpdateCredits(userId: string, amount: number, reason: string, t: TokenGetter) { return request(`/admin/users/${userId}/credits`, { method: 'PATCH', body: JSON.stringify({ amount, reason }) }, t); },
+    adminBanUser(userId: string, t: TokenGetter) { return request(`/admin/users/${userId}/ban`, { method: 'PATCH' }, t); },
+    adminUnbanUser(userId: string, t: TokenGetter) { return request(`/admin/users/${userId}/unban`, { method: 'PATCH' }, t); },
+    adminGetExchanges(t: TokenGetter) { return request('/admin/exchanges', {}, t); },
 };

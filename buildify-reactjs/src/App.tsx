@@ -30,6 +30,7 @@ import Disputes from "./pages/Disputes";
 import Schedule from "./pages/Schedule";
 import Rewards from "./pages/Rewards";
 import PublicProfile from "./pages/PublicProfile";
+import Admin from "./pages/Admin";
 
 function LandingPage() {
     return (
@@ -71,6 +72,7 @@ export default function App() {
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
                 <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
