@@ -47,6 +47,18 @@ router.get('/:id', async (req, res) => {
             .or(`provider_id.eq.${req.userId},requester_id.eq.${req.userId}`)
             .single();
         if (error || !data) return res.status(404).json({ error: 'Exchange not found' });
+        // Security Check: Hide meeting details from the requester unless the exchange is accepted/in_progress/completed
+        if (data.service_listings && req.userId === data.requester_id) {
+            const allowedStatuses = ['accepted', 'in_progress', 'completed'];
+            if (!allowedStatuses.includes(data.status)) {
+                data.service_listings.meeting_link = null;
+                data.service_listings.meeting_password = null;
+                data.service_listings.offline_venue = null;
+                data.service_listings.offline_date = null;
+                data.service_listings.offline_time = null;
+            }
+        }
+
         res.json({
             ...data,
             listing: data.service_listings || null,

@@ -6,7 +6,7 @@ import AnimatedContent from '../components/animated-content';
 import SectionTitle from '../components/section-title';
 import { CATEGORY_KEYS, CATEGORY_LABELS } from '../../types';
 import type { ServiceCategory, ListingType } from '../../types';
-import { SparkleIcon, SendIcon, ArrowLeftIcon, TagIcon, FileTextIcon, ClockIcon, CalendarIcon, ChevronRightIcon, ChevronLeftIcon, UsersIcon, CrownIcon } from 'lucide-react';
+import { SparkleIcon, SendIcon, ArrowLeftIcon, TagIcon, FileTextIcon, ClockIcon, CalendarIcon, ChevronRightIcon, ChevronLeftIcon, UsersIcon, CrownIcon, VideoIcon, MapPinIcon, LinkIcon, LockIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const variants = {
@@ -31,7 +31,9 @@ export default function OfferService() {
         title: '', category: 'tutoring' as ServiceCategory, description: '',
         estimated_hours: 1, type: 'offer' as ListingType, availability: '',
         is_resource: false, resource_deposit: 0,
-        max_participants: 1, premium_rate_allowed: false
+        max_participants: 1, premium_rate_allowed: false,
+        is_online: true, meeting_link: '', meeting_password: '',
+        offline_venue: '', offline_date: '', offline_time: ''
     });
     
     const [step, setStep] = useState(1);
@@ -50,7 +52,14 @@ export default function OfferService() {
     const nextStep = () => {
         // Validation per step
         if (step === 2 && !form.title.trim()) { setError('Please enter a service title.'); return; }
-        if (step === 3 && !form.description.trim()) { setError('Please provide a description.'); return; }
+        if (step === 3) {
+            if (!form.description.trim()) { setError('Please provide a description.'); return; }
+            if (form.type === 'offer' && !form.is_resource) {
+                if (form.is_online && form.meeting_link.trim() && !form.meeting_password.trim()) {
+                    setError('Meeting password is compulsory if you provide a meeting link.'); return;
+                }
+            }
+        }
         
         setError('');
         setDirection(1);
@@ -289,6 +298,63 @@ export default function OfferService() {
                                                             }`}
                                                         />
                                                     </button>
+                                                </div>
+
+                                                {/* Meeting Details (Online/Offline) */}
+                                                <div className="mt-8 pt-8 border-t border-[var(--border)]">
+                                                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-4">
+                                                        <VideoIcon size={16} className="inline mr-2 -translate-y-px" /> How will this service be delivered?
+                                                    </label>
+                                                    <div className="flex bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-1 mb-6">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleChange('is_online', true)}
+                                                            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${form.is_online ? 'bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                                                        >
+                                                            <VideoIcon size={16} className="inline mr-2 -translate-y-px" /> Online
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleChange('is_online', false)}
+                                                            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${!form.is_online ? 'bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                                                        >
+                                                            <MapPinIcon size={16} className="inline mr-2 -translate-y-px" /> In-Person
+                                                        </button>
+                                                    </div>
+
+                                                    <AnimatePresence mode="wait">
+                                                        {form.is_online ? (
+                                                            <motion.div key="online" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                                                                <div>
+                                                                    <label className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold"><LinkIcon size={12} className="inline mr-1" /> Meeting Link</label>
+                                                                    <input type="url" className={inputClass} placeholder="https://zoom.us/j/..." value={form.meeting_link} onChange={(e) => handleChange('meeting_link', e.target.value)} />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold"><LockIcon size={12} className="inline mr-1" /> Password <span className="text-red-400">*</span></label>
+                                                                    <input type="text" className={inputClass} placeholder="Meeting password (compulsory if link is given)" value={form.meeting_password} onChange={(e) => handleChange('meeting_password', e.target.value)} />
+                                                                </div>
+                                                                <p className="text-xs text-[var(--text-muted)] pl-2 border-l-2 border-[var(--accent)]">These details will be locked until you approve the exchange request.</p>
+                                                            </motion.div>
+                                                        ) : (
+                                                            <motion.div key="offline" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                                                                <div>
+                                                                    <label className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold"><MapPinIcon size={12} className="inline mr-1" /> Venue</label>
+                                                                    <input type="text" className={inputClass} placeholder="e.g., Campus Library, Room 302" value={form.offline_venue} onChange={(e) => handleChange('offline_venue', e.target.value)} />
+                                                                </div>
+                                                                <div className="flex gap-4">
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">Date</label>
+                                                                        <input type="date" className={`${inputClass} text-sm`} value={form.offline_date} onChange={(e) => handleChange('offline_date', e.target.value)} />
+                                                                    </div>
+                                                                    <div className="flex-1">
+                                                                        <label className="block text-xs text-[var(--text-muted)] mb-1 uppercase tracking-wider font-semibold">Time</label>
+                                                                        <input type="time" className={`${inputClass} text-sm`} value={form.offline_time} onChange={(e) => handleChange('offline_time', e.target.value)} />
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-xs text-[var(--text-muted)] pl-2 border-l-2 border-[var(--accent)]">Location details will be hidden until you approve the exchange request.</p>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
                                                 </div>
                                             </>
                                         )}

@@ -58,13 +58,28 @@ router.get('/mine', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
     try {
         if (!supabase) return res.status(503).json({ error: 'Database not configured' });
-        const { title, category, description, estimated_hours = 1, type = 'offer', availability = '', priority = 'normal', is_resource = false, resource_deposit = 0, resource_condition = '', tags = [], max_participants = 1, premium_rate_allowed = false } = req.body;
+        const { 
+            title, category, description, estimated_hours = 1, type = 'offer', 
+            availability = '', priority = 'normal', is_resource = false, 
+            resource_deposit = 0, resource_condition = '', tags = [], 
+            max_participants = 1, premium_rate_allowed = false,
+            is_online = true, meeting_link = '', meeting_password = '',
+            offline_venue = '', offline_date = '', offline_time = ''
+        } = req.body;
         const errors = [];
         if (!title?.trim()) errors.push('title is required');
         if (!description?.trim()) errors.push('description is required');
         if (!VALID_CATEGORIES.includes(category)) errors.push('invalid category');
         if (!VALID_TYPES.includes(type)) errors.push('type must be offer or request');
         if (estimated_hours <= 0 || estimated_hours > 100) errors.push('estimated_hours must be 0.5–100');
+        
+        // Meeting details validation
+        if (type === 'offer' && !is_resource) {
+            if (is_online && meeting_link.trim() && !meeting_password.trim()) {
+                errors.push('Meeting password is required when a meeting link is provided');
+            }
+        }
+
         if (errors.length) return res.status(400).json({ errors });
 
         const insertData = {
@@ -72,6 +87,19 @@ router.post('/', authMiddleware, async (req, res) => {
                 estimated_hours, type, availability: availability.trim(),
                 priority, is_resource, resource_deposit, resource_condition, tags
             };
+
+        // Add meeting details for offers
+        if (type === 'offer' && !is_resource) {
+            insertData.is_online = is_online;
+            if (is_online) {
+                insertData.meeting_link = meeting_link.trim();
+                insertData.meeting_password = meeting_password.trim();
+            } else {
+                insertData.offline_venue = offline_venue.trim();
+                insertData.offline_date = offline_date.trim();
+                insertData.offline_time = offline_time.trim();
+            }
+        }
 
         // Only offers can have group/premium settings
         if (type === 'offer') {
@@ -109,7 +137,11 @@ router.post('/', authMiddleware, async (req, res) => {
 router.patch('/:id', authMiddleware, async (req, res) => {
     try {
         if (!supabase) return res.status(503).json({ error: 'Database not configured' });
-        const { title, category, description, estimated_hours, type, availability, priority, is_resource, resource_deposit, resource_condition, tags, status } = req.body;
+        const { 
+            title, category, description, estimated_hours, type, availability, priority, 
+            is_resource, resource_deposit, resource_condition, tags, status,
+            is_online, meeting_link, meeting_password, offline_venue, offline_date, offline_time 
+        } = req.body;
 
         const updateData = {};
         if (title !== undefined) updateData.title = title.trim();
@@ -124,6 +156,12 @@ router.patch('/:id', authMiddleware, async (req, res) => {
         if (resource_condition !== undefined) updateData.resource_condition = resource_condition;
         if (tags !== undefined) updateData.tags = tags;
         if (status !== undefined) updateData.status = status;
+        if (is_online !== undefined) updateData.is_online = is_online;
+        if (meeting_link !== undefined) updateData.meeting_link = meeting_link.trim();
+        if (meeting_password !== undefined) updateData.meeting_password = meeting_password.trim();
+        if (offline_venue !== undefined) updateData.offline_venue = offline_venue.trim();
+        if (offline_date !== undefined) updateData.offline_date = offline_date.trim();
+        if (offline_time !== undefined) updateData.offline_time = offline_time.trim();
 
         const { data, error } = await supabase
             .from('service_listings')

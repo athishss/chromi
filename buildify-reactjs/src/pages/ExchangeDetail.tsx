@@ -5,7 +5,7 @@ import { api } from '../services/api';
 import AnimatedContent from '../components/animated-content';
 import type { IExchange } from '../../types';
 import { EXCHANGE_STATUS_LABELS, CATEGORY_LABELS } from '../../types';
-import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, PlayIcon, StarIcon, SendIcon, ClockIcon, UserIcon, ShieldIcon, MessageCircleIcon } from 'lucide-react';
+import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon, PlayIcon, StarIcon, SendIcon, ClockIcon, UserIcon, ShieldIcon, MessageCircleIcon, VideoIcon, MapPinIcon, LinkIcon, LockIcon, CalendarIcon } from 'lucide-react';
 
 interface ChatMessage {
     id: string;
@@ -156,6 +156,76 @@ export default function ExchangeDetail() {
                     <p className="font-urbanist text-3xl font-bold">{exchange.hours_exchanged} <span className="text-lg font-medium text-[var(--text-secondary)]">time credits</span></p>
                     <p className="text-xs text-[var(--text-muted)] mt-1">Created {new Date(exchange.created_at).toLocaleDateString()}</p>
                 </AnimatedContent>
+
+                {/* Actions */}
+                {exchange.listing && exchange.listing.type === 'offer' && !exchange.listing.is_resource && (
+                    <AnimatedContent delay={0.15} className="p-5 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] shadow-[var(--card-shadow)] mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            {exchange.listing.is_online ? <VideoIcon size={18} className="text-blue-400" /> : <MapPinIcon size={18} className="text-amber-400" />}
+                            <h3 className="font-urbanist font-semibold text-[var(--text-primary)]">Meeting Details</h3>
+                        </div>
+                        
+                        {(isRequester && ['pending', 'cancelled', 'disputed'].includes(exchange.status)) ? (
+                            <div className="flex flex-col items-center justify-center py-6 text-center bg-[var(--bg-muted)] rounded-lg border border-[var(--border)] border-dashed">
+                                <LockIcon size={24} className="text-[var(--text-muted)] mb-2" />
+                                <p className="text-sm font-medium text-[var(--text-secondary)]">Details Locked</p>
+                                <p className="text-xs text-[var(--text-muted)] mt-1 max-w-xs">Meeting info will be revealed once the provider accepts your request.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {exchange.listing.is_online ? (
+                                    <>
+                                        {exchange.listing.meeting_link && (
+                                            <div className="bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+                                                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-1 flex items-center gap-1"><LinkIcon size={12} /> Meeting Link</p>
+                                                <a href={exchange.listing.meeting_link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline break-all">
+                                                    {exchange.listing.meeting_link}
+                                                </a>
+                                            </div>
+                                        )}
+                                        {exchange.listing.meeting_password && (
+                                            <div className="bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+                                                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-1 flex items-center gap-1"><LockIcon size={12} /> Password</p>
+                                                <p className="text-sm font-mono text-[var(--text-primary)]">{exchange.listing.meeting_password}</p>
+                                            </div>
+                                        )}
+                                        {!exchange.listing.meeting_link && !exchange.listing.meeting_password && (
+                                            <p className="text-sm text-[var(--text-muted)] italic">No online meeting details provided.</p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {exchange.listing.offline_venue && (
+                                            <div className="bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+                                                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-1 flex items-center gap-1"><MapPinIcon size={12} /> Venue</p>
+                                                <p className="text-sm text-[var(--text-primary)]">{exchange.listing.offline_venue}</p>
+                                            </div>
+                                        )}
+                                        {(exchange.listing.offline_date || exchange.listing.offline_time) && (
+                                            <div className="flex gap-3">
+                                                {exchange.listing.offline_date && (
+                                                    <div className="flex-1 bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+                                                        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-1 flex items-center gap-1"><CalendarIcon size={12} /> Date</p>
+                                                        <p className="text-sm text-[var(--text-primary)]">{exchange.listing.offline_date}</p>
+                                                    </div>
+                                                )}
+                                                {exchange.listing.offline_time && (
+                                                    <div className="flex-1 bg-[var(--bg-input)] rounded-lg p-3 border border-[var(--border)]">
+                                                        <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-1 flex items-center gap-1"><ClockIcon size={12} /> Time</p>
+                                                        <p className="text-sm text-[var(--text-primary)]">{exchange.listing.offline_time}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {!exchange.listing.offline_venue && !exchange.listing.offline_date && !exchange.listing.offline_time && (
+                                            <p className="text-sm text-[var(--text-muted)] italic">No offline meeting details provided.</p>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </AnimatedContent>
+                )}
 
                 {/* Actions */}
                 {exchange.status === 'pending' && isProvider && (

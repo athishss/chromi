@@ -76,6 +76,12 @@ export interface IServiceListing {
     demand_count?: number;
     max_participants?: number;
     premium_rate_allowed?: boolean;
+    is_online?: boolean;
+    meeting_link?: string;
+    meeting_password?: string;
+    offline_venue?: string;
+    offline_date?: string;
+    offline_time?: string;
     created_at: string;
     updated_at: string;
     // Joined fields
