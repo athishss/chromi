@@ -6,8 +6,8 @@ import SectionTitle from '../components/section-title';
 import { EXCHANGE_STATUS_LABELS, CATEGORY_LABELS } from '../../types';
 import {
     ShieldIcon, UsersIcon, ArrowRightCircleIcon, CoinsIcon,
-    SearchIcon, PlusIcon, MinusIcon, BanIcon, CheckCircleIcon,
-    ActivityIcon, ClockIcon, BarChart3Icon, XIcon
+    SearchIcon, BanIcon, CheckCircleIcon,
+    ActivityIcon, BarChart3Icon, XIcon
 } from 'lucide-react';
 
 interface PlatformStats {
@@ -293,13 +293,13 @@ export default function Admin() {
                                     <tr key={e.id} className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-muted)]/50 transition-colors">
                                         <td className="px-4 py-3">
                                             <p className="font-medium truncate max-w-[200px]">{e.listing_title}</p>
-                                            <p className="text-[10px] text-[var(--text-muted)]">{CATEGORY_LABELS[e.category] || e.category}</p>
+                                            <p className="text-[10px] text-[var(--text-muted)]">{(CATEGORY_LABELS as any)[e.category] || e.category}</p>
                                         </td>
                                         <td className="px-4 py-3 text-[var(--text-secondary)]">{e.provider_name}</td>
                                         <td className="px-4 py-3 text-[var(--text-secondary)]">{e.requester_name}</td>
                                         <td className="px-4 py-3 text-center">
                                             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${statusColor[e.status] || ''}`}>
-                                                {EXCHANGE_STATUS_LABELS[e.status] || e.status}
+                                                {(EXCHANGE_STATUS_LABELS as any)[e.status] || e.status}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 text-right font-medium">{e.hours_exchanged}</td>
